@@ -7,15 +7,54 @@ var fs = require("fs");
 var dateTime = require("date-time");
 var md5 = require("md5");
 var mime = require('mime-types');
+var zlib = require('zlib');
 
 //const dcomp = require('decompress');
 //const dcompGz = require('decompress-gz');
-const gunzip = require('gunzip-file');
+
+// checks whether a file exists
+function fileExists(filePath) {
+  try {
+      return fs.statSync(filePath).isFile();
+  } catch (err) {
+      return false;
+  }
+}
+
+function gunzip(source, destination, callback) {
+  try {
+    // check if source file exists
+    if ( !fileExists(source) ) {
+      throw new Error(`file not found: ${source}`);
+    }
+    // prepare streams
+    var src = fs.createReadStream(source);
+    var dest = fs.createWriteStream(destination);
+
+    // extract the archive
+    src.pipe(zlib.createGunzip()).pipe(dest);
+
+    // callback on extract completion
+    dest.on('close', function() {
+      if ( typeof callback === 'function' ) {
+        callback();
+      }
+    });
+  } catch (err) {
+    // either source is not readable
+    // or the destination is not writable
+    // or file not a gzip
+    callback(err);
+  }
+}
 
 function gzAsync (path, dest) {
   return new Promise((resolve, reject) => {
     try {
-      gunzip(path, dest, function() {
+      gunzip(path, dest, function(err) {
+        if(err) {
+          return reject(err);
+        }
         const items = [];
         fs.readdirSync(dest).forEach(file => {
           items.push(file);
@@ -25,8 +64,8 @@ function gzAsync (path, dest) {
     } catch (error) {
       return reject(error)
     }
-  })
-}
+  });
+};
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
