@@ -98,16 +98,16 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                // adding this conditional for gz to avoid altering original code too much
                let count = 0;
                for(let i=0;i<zipEntryCount;i++){
-                 await s3.upload({Bucket: command.bucket, Key: zipEntries[i].path, Body: zipEntries[i].data}).promise()
-                 .then(function(data) {
-                         if (command.verbose) console.log("File decompressed to S3: "+data.Location);
-                         count = count + 1;
-                     }, function (err) {
-                         if (cb) cb(new Error("Upload Error: "+err.message));
-                         else console.error("Upload Error: "+err.message);
-                         fs.unlinkSync(fpath);
-                         return;
-                     })
+                  try {
+                    const data = await s3.upload({Bucket: command.bucket, Key: zipEntries[i].path, Body: zipEntries[i].data}).promise();
+                    if (command.verbose) console.log("File decompressed to S3: "+data.Location);
+                    count = count + 1;
+                  } catch (err) {
+                    if (cb) cb(new Error("Upload Error: "+err.message));
+                    else console.error("Upload Error: "+err.message);
+                    fs.unlinkSync(fpath);
+                    return;
+                  }
                }
  
                //if all files are unzipped...
@@ -188,8 +188,8 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
            }
           } catch (err) {
             console.error(error);
-            if (cb) cb(new Error("Upload Error: "+err.message));
-            else console.error("Upload Error: "+err.message);
+            if (cb) cb(new Error("Unexpected Error: "+err.message));
+            else console.error("Unexpected Error: "+err.message);
             return;
           }
         }
