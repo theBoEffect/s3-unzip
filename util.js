@@ -45,11 +45,11 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
           else {
            	if (command.verbose) console.log("Zip/Gz file '"+command.file+"' found in S3 bucket!");
             let type = '.zip';
-            let mime = 'application/zip';
+            let mm = 'application/zip';
             if (command.file.toLowerCase().includes('.gz')) {
               console.log('Assuming GZ');
               type = '.gz';
-              mime = 'application/gzip';
+              mm = 'application/gzip';
             } else console.log('Assuming Zip');
 
             //write the zip file locally in a tmp dir
@@ -58,7 +58,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
             fs.writeFileSync(fpath, data.Body);
 
             //check that file in that location is a zip content type, otherwise throw error and exit
-            if(mime.lookup(fpath) !== mime) {
+            if(mime.lookup(fpath) !== mm) {
               if (cb) cb(new Error("Error: file is not of type zip or gz. Please select a valid file (filename.zip /.gz)."));
               else console.error("Error: file is not of type zip or gz. Please select a valid file (filename.zip / .gz).");
               fs.unlinkSync(fpath);
