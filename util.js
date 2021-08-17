@@ -27,20 +27,24 @@ function gunzip(source, destination, callback) {
     if ( !fileExists(source) ) {
       throw new Error(`file not found: ${source}`);
     }
+    console.info('we found the file');
     // prepare streams
     var src = fs.createReadStream(source);
     var dest = fs.createWriteStream(destination);
 
     // extract the archive
     src.pipe(zlib.createGunzip()).pipe(dest);
-
+    console.info('zlib pipe seemed to work');
     // callback on extract completion
-    dest.on('close', function() {
+    dest.on('close', function(data) {
       if ( typeof callback === 'function' ) {
+        console.info('calling callback');
+        console.info(data);
         callback();
       }
     });
   } catch (err) {
+    console.info('error in the gunzip function');
     // either source is not readable
     // or the destination is not writable
     // or file not a gzip
@@ -53,15 +57,20 @@ function gzAsync (path, dest) {
     try {
       gunzip(path, dest, function(err) {
         if(err) {
+          console.info('rejecting error');
           return reject(err);
         }
         const items = [];
         fs.readdirSync(dest).forEach(file => {
           items.push(file);
         });
+        console.info('unzipped and now getting file list');
+        console.info(items);
+        console.info('resolving promise with files');
         return resolve(items);
       });
     } catch (error) {
+      console.info('rejecting error 2');
       return reject(error)
     }
   });
