@@ -8,8 +8,25 @@ var dateTime = require("date-time");
 var md5 = require("md5");
 var mime = require('mime-types');
 
-const dcomp = require('decompress');
-const dcompGz = require('decompress-gz');
+//const dcomp = require('decompress');
+//const dcompGz = require('decompress-gz');
+const gunzip = require('gunzip-file');
+
+function gzAsync (path, dest) {
+  return new Promise((resolve, reject) => {
+    try {
+      gunzip(path, dest, function() {
+        const items = [];
+        fs.readdirSync(dest).forEach(file => {
+          items.push(file);
+        });
+        return resolve(items);
+      });
+    } catch (error) {
+      return reject(error)
+    }
+  })
+}
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
@@ -77,7 +94,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                try {
                   console.info('We are attempting to decompress GZ');
                   console.info(fpath);
-                  zipEntries = await dcomp(fpath, '/tmp/gz');
+                  zipEntries = await gzAsync(fpath, '/tmp/gz');
                   console.info('success gz decompress');
                   console.info(zipEntries);
                   zipEntryCount = zipEntries.length;
@@ -104,7 +121,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                let count = 0;
                for(let i=0;i<zipEntryCount;i++){
                   try {
-                    const data = await s3.upload({Bucket: command.bucket, Key: zipEntries[i].path, Body: zipEntries[i].data}).promise();
+                    const data = await s3.upload({Bucket: command.bucket, Key: zipEntries[i].path, Body: fs.readFileSync(zipEntries[i].path,'utf8')}).promise();
                     if (command.verbose) console.log("File decompressed to S3: "+data.Location);
                     count = count + 1;
                   } catch (err) {
