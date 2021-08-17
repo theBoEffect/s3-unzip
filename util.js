@@ -53,8 +53,8 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
              } else console.log('Assuming Zip');
  
              //write the zip file locally in a tmp dir
-             const fpath = `/tmp/${tmpZipFilename}${type}`;
              var tmpZipFilename = md5(dateTime({showMilliseconds: true}));
+             const fpath = `/tmp/${tmpZipFilename}${type}`;
              fs.writeFileSync(fpath, data.Body);
  
              //check that file in that location is a zip content type, otherwise throw error and exit
