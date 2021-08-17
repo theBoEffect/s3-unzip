@@ -36,7 +36,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
         {
           Bucket: command.bucket,
           Key: command.file
-        }, function(err, data) {
+        }, async function(err, data) {
           if (err) {
            	if (cb) cb(new Error("File Error: "+err.message));
             else console.error("File Error: "+err.message);
