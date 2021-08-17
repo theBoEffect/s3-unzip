@@ -1,6 +1,6 @@
 {
   "name": "s3-unzip",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "description": "Utility for unzipping a compressed (zip & gz) file from a S3 bucket's root directory back to the same bucket.",
   "keywords": [
     "s3",
@@ -40,6 +40,7 @@
     "gunzip-file": "^0.1.1",
     "md5": "^2.2.1",
     "mime-types": "^2.1.16",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "unzipper": "^0.10.11"
   }
 }
