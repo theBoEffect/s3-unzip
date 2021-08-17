@@ -1,0 +1,44 @@
+{
+  "name": "s3-unzip",
+  "version": "0.2.0",
+  "description": "Utility for unzipping a compressed (zip & gz) file from a S3 bucket's root directory back to the same bucket.",
+  "keywords": [
+    "s3",
+    "zip",
+    "archive",
+    "unzip",
+    "gz",
+    "gunzip"
+  ],
+  "main": "index.js",
+  "bin": {
+    "s3-unzip": "bin/s3-unzip"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Steve Yardumian",
+  "contributors": [
+    {
+      "name": "Bo Motlagh",
+      "email": "borzou@theboeffect.com"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "aws-sdk": "^2.100.0",
+    "commander": "^2.11.0",
+    "date-time": "^2.1.0",
+    "decompress": "^4.2.1",
+    "decompress-gz": "^0.0.1",
+    "fs": "0.0.1-security",
+    "md5": "^2.2.1",
+    "mime-types": "^2.1.16",
+    "mocha": "^5.2.0"
+  }
+}
