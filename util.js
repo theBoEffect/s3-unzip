@@ -21,6 +21,42 @@ function fileExists(filePath) {
   }
 }
 
+function gz(rd, out) {
+  console.info('reading from rd');
+  console.info(rd);
+  return new Promise((resolve, reject) => {
+    zlib.gunzip(rd, (err, bin) => {
+     if (err) reject(err)
+     console.info(bin);
+     fs.writeFileSync(out, bin)
+     console.info('wrote file to out directory');
+     console.info(out);
+     resolve()
+    })
+   });
+}
+
+async function gnzip(source, destination) {
+  try {
+    // check if source file exists
+    if ( !fileExists(source) ) {
+      throw new Error(`file not found: ${source}`);
+    }
+    
+    if ( !fs.existsSync(destination) ) {
+      fs.mkdirSync(destination, { recursive: true });
+    }
+
+    console.info('we found the file');
+    const rd = fs.readFileSync(source)
+    await gz(source, destination);
+    console.info('success');
+  } catch (error) {
+    throw error;
+  }
+}
+
+// old now
 function gunzip(source, destination, callback) {
   try {
     // check if source file exists
@@ -39,9 +75,11 @@ function gunzip(source, destination, callback) {
 
     // extract the archive
     src.pipe(zlib.createGunzip()).pipe(dest);
+
     console.info('zlib pipe seemed to work');
     // callback on extract completion
     dest.on('close', function(data) {
+      console.info('on close');
       if ( typeof callback === 'function' ) {
         console.info('calling callback');
         console.info(data);
@@ -57,28 +95,21 @@ function gunzip(source, destination, callback) {
   }
 }
 
-function gzAsync (path, dest) {
-  return new Promise((resolve, reject) => {
-    try {
-      gunzip(path, dest, function(err) {
-        if(err) {
-          console.info('rejecting error');
-          return reject(err);
-        }
-        const items = [];
-        fs.readdirSync(dest).forEach(file => {
-          items.push(file);
-        });
-        console.info('unzipped and now getting file list');
-        console.info(items);
-        console.info('resolving promise with files');
-        return resolve(items);
-      });
-    } catch (error) {
-      console.info('rejecting error 2');
-      return reject(error)
-    }
-  });
+async function gzAsync (path, dest) {
+  try {
+    await gnzip(path, dest);
+    const items = [];
+    fs.readdirSync(dest).forEach(file => {
+      items.push(file);
+    });
+    console.info('unzipped and now getting file list');
+    console.info(items);
+    console.info('resolving promise with files');
+    return items;
+  } catch (error) {
+    console.info('rejecting error 2');
+    throw (error);
+  }
 };
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
