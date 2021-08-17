@@ -24,14 +24,20 @@ function fileExists(filePath) {
 function gz(rd, out) {
   console.info('reading from rd');
   console.info(rd);
+  console.info('write file to out directory');
+  console.info(out);
+  var dest = fs.createWriteStream(out);
   return new Promise((resolve, reject) => {
     zlib.gunzip(rd, (err, bin) => {
      if (err) reject(err)
-     console.info(bin);
-     fs.writeFileSync(out, bin)
-     console.info('wrote file to out directory');
-     console.info(out);
-     resolve()
+      console.info(bin);
+      bin.pipe(dest);
+      dest.on('close', () => {
+        console.info('success and closing write stream');
+      })
+      console.info('resolving');
+      //fs.writeFileSync(out, bin)
+      resolve()
     })
    });
 }
@@ -48,8 +54,19 @@ async function gnzip(source, destination) {
     }
 
     console.info('we found the file');
-    const rd = fs.readFileSync(source);
-    await gz(rd, destination);
+    //const rd = fs.readFileSync(source);
+
+    const s = fs.createReadStream(source);
+    let data = Buffer.concat([]);
+  
+    s.on('data', function (chunk) {
+     data = Buffer.concat([data, chunk]);
+    });
+    s.on('end', async function () {
+      console.info('got the whole input stream and attempting to decode');
+      await gz(data, destination);
+    });
+    
     console.info('success');
   } catch (error) {
     throw error;
