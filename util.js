@@ -29,7 +29,7 @@ function gunzip(source, destination, callback) {
     }
     
     if ( !fs.existsSync(destination) ) {
-      fs.mkdirSync(destination);
+      fs.mkdirSync(destination, { recursive: true });
     }
 
     console.info('we found the file');
