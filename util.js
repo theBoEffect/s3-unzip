@@ -207,8 +207,11 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                   fs.createReadStream(fpath)
                   .pipe(unzipper.Parse())
                   .pipe(etl.map(async entry => {
+                    console.info('inside parser for unzipper');    
                     temp = {};
                     temp.entryName = entry.path;
+                    console.info('filename?');
+                    console.info(temp.entryName);
                     const content = await entry.buffer();
                     fs.writeFileSync(`/tmp/gz/${temp.entryName}`, content);
                     zipEntries.push(temp);
