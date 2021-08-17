@@ -48,8 +48,8 @@ async function gnzip(source, destination) {
     }
 
     console.info('we found the file');
-    const rd = fs.readFileSync(source)
-    await gz(source, destination);
+    const rd = fs.readFileSync(source);
+    await gz(rd, destination);
     console.info('success');
   } catch (error) {
     throw error;
@@ -57,6 +57,7 @@ async function gnzip(source, destination) {
 }
 
 // old now
+/*
 function gunzip(source, destination, callback) {
   try {
     // check if source file exists
@@ -94,7 +95,7 @@ function gunzip(source, destination, callback) {
     callback(err);
   }
 }
-
+*/
 async function gzAsync (path, dest) {
   try {
     await gnzip(path, dest);
