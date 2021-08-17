@@ -8,8 +8,8 @@ var dateTime = require("date-time");
 var md5 = require("md5");
 var mime = require('mime-types');
 
-const decompress = require('decompress');
-const decompressGz = require('decompress-gz');
+const dcomp = require('decompress');
+const dcompGz = require('decompress-gz');
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
@@ -74,9 +74,9 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
               zipEntryCount = Object.keys(zipEntries).length;
             } else {
               // using decompress to get files in gz
-              zipEntries = await decompress(fpath, '/tmp/gz', {
+              zipEntries = await dcomp(fpath, '/tmp/gz', {
                 plugins: [
-                    decompressGz()
+                  dcompGz()
                 ]
               }).then((files) => {
                     return files;
