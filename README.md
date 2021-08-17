@@ -1,6 +1,6 @@
-# VRX S3 Unzip
+# S3 Unzip2
 
-This is a fork of [S3 Unzip](https://bitbucket.org/copperhill/s3-unzip.git) by Steve Yardumian updated to support gz files with [gunzip-file](https://github.com/tyxla/gunzip-file)
+This is a fork of [S3 Unzip](https://bitbucket.org/copperhill/s3-unzip.git) by Steve Yardumian updated to support gz files with decompress with the gz plugin
 
 ## S3 Unzip ##
 
