@@ -27,6 +27,11 @@ function gunzip(source, destination, callback) {
     if ( !fileExists(source) ) {
       throw new Error(`file not found: ${source}`);
     }
+    
+    if ( !fs.existsSync(destination) ) {
+      fs.mkdirSync(destination);
+    }
+
     console.info('we found the file');
     // prepare streams
     var src = fs.createReadStream(source);
