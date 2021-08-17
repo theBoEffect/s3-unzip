@@ -82,7 +82,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                   console.info(zipEntries);
                   zipEntryCount = zipEntries.length;
                } catch (err) {
-                  console.error(error);
+                  console.error(err);
                   if (cb) cb(new Error("Unexpected Error: "+err.message));
                   else console.error("Unexpected Error: "+err.message);
                   return;
@@ -192,7 +192,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
              }
            }
           } catch (err) {
-            console.error(error);
+            console.error(err);
             if (cb) cb(new Error("Unexpected Error: "+err.message));
             else console.error("Unexpected Error: "+err.message);
             return;
