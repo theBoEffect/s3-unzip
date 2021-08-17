@@ -74,14 +74,23 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                zipEntryCount = Object.keys(zipEntries).length;
              } else {
                // using decompress to get files in gz
-               zipEntries = await dcomp(fpath, '/tmp/gz', {
-                 plugins: [
-                   dcompGz()
-                 ]
-               }).then((files) => {
-                     return files;
-               });
-               zipEntryCount = zipEntries.length;
+               try {
+                  console.info('We are attempting to decompress GZ');
+                  console.info(fpath);
+                  zipEntries = await dcomp(fpath, '/tmp/gz', {
+                    plugins: [
+                      dcompGz()
+                    ]
+                  });
+                  console.info('success gz decompress');
+                  console.info(zipEntries);
+                  zipEntryCount = zipEntries.length;
+               } catch (err) {
+                  console.error(error);
+                  if (cb) cb(new Error("Unexpected Error: "+err.message));
+                  else console.error("Unexpected Error: "+err.message);
+                  return;
+               }
              }
  
  
