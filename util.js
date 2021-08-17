@@ -77,11 +77,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                try {
                   console.info('We are attempting to decompress GZ');
                   console.info(fpath);
-                  zipEntries = await dcomp(fpath, '/tmp/gz', {
-                    plugins: [
-                      dcompGz()
-                    ]
-                  });
+                  zipEntries = await dcomp(fpath, '/tmp/gz');
                   console.info('success gz decompress');
                   console.info(zipEntries);
                   zipEntryCount = zipEntries.length;
