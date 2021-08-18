@@ -110,7 +110,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       }));
       */
       console.info('success gz decompress - getting data');
-      fs.readdirSync(dest).forEach(file => {
+      fs.readdirSync('/tmp/gz').forEach(file => {
         console.info('found: '+file);
         zipEntries.push(file);
       });
