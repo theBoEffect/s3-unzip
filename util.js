@@ -152,7 +152,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       default:
         console.info('default behavior is to use original zip flow');
         // original s3-unzip code slightly updated, could be updated to async/await later...
-        const counter = 0;
+        let counter = 0;
         zipEntries.forEach((zipEntry) => {
           console.info(zipEntry);
           console.info(zipEntry.entryName);
