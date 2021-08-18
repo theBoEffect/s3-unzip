@@ -86,13 +86,14 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       console.info('We are attempting to decompress GZ');
       console.info(fpath);
       
+      /*
       if ( !fs.existsSync('/tmp/gz') ) {
         console.info('making directory');
         fs.mkdirSync('/tmp/gz', { recursive: true });
       }
-
+      */
       console.info('attempting to unzip');
-      await gunzip(fpath, '/tmp/gz');
+      await gunzip(fpath, '/tmp');
 
       /*
       console.info('streaming data now');
@@ -123,9 +124,9 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       }));
       */
       console.info('success gz decompress - getting data');
-      fs.readdirSync('/tmp/gz').forEach(file => {
+      fs.readdirSync('/tmp').forEach(file => {
         console.info('found: '+file);
-        zipEntries.push(file);
+        if(! file.includes('.gz')) zipEntries.push(file);
       });
       console.info(zipEntries);
       zipEntryCount = zipEntries.length;
