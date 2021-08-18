@@ -9,6 +9,7 @@ const md5 = require("md5");
 const mime = require('mime-types');
 
 const unzipper = require('unzipper');
+const etl = require('etl');
 
 const decompress = async function(/*String*/command, /*Function*/ cb) {
   try {
@@ -69,8 +70,6 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       const zip = new AdmZip(fpath);
       zipEntries = zip.getEntries();
       zipEntryCount = Object.keys(zipEntries).length;
-      console.info(zipEntries);
-      console.info(zipEntryCount);
     } else {
       // using unzipper to get files
       zipEntries = [];
@@ -154,8 +153,6 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
         // original s3-unzip code slightly updated, could be updated to async/await later...
         let counter = 0;
         zipEntries.forEach((zipEntry) => {
-          console.info(zipEntry);
-          console.info(zipEntry.entryName);
           s3.upload({ Bucket: command.bucket, Key: zipEntry.entryName, Body: zipEntry.getData() }, function(err, data) {
             counter++;
 

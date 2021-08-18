@@ -34,6 +34,7 @@
     "aws-sdk": "^2.100.0",
     "commander": "^2.11.0",
     "date-time": "^2.1.0",
+    "etl": "^0.6.12",
     "fs": "0.0.1-security",
     "md5": "^2.2.1",
     "mime-types": "^2.1.16",
