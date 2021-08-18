@@ -77,23 +77,30 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       console.info('We are attempting to decompress GZ');
       console.info(fpath);
       if ( !fs.existsSync('/tmp/gz') ) {
+        console.info('making directory');
         fs.mkdirSync('/tmp/gz', { recursive: true });
       }
+
+      console.info('streaming data now');
       fs.createReadStream(fpath)
       .pipe(unzipper.Parse())
-      .pipe(etl.map(async entry => {
+      .pipe(etl.map(entry => {
         console.info('inside parser for unzipper');    
         temp = {};
         temp.entryName = entry.path;
         console.info('filename?');
         console.info(temp.entryName);
-        const content = await entry.buffer();
-        fs.writeFileSync(`/tmp/gz/${temp.entryName}`, content);
-        zipEntries.push(temp);
+        entry.pipe(fs.createWriteStream('/tmp/gz'))
+        .on('finish', () => {
+          zipEntries.push(temp);
+        })
+        //const content = await entry.buffer();
+        //fs.writeFileSync(`/tmp/gz/${temp.entryName}`, content);
       }));
       console.info('success gz decompress');
       console.info(zipEntries);
       zipEntryCount = zipEntries.length;
+      console.info(zipEntryCount);
     }
 
     console.info('we have the entries.... attempting to write');
