@@ -85,10 +85,9 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
 
       console.info('streaming data now');
       const input = fs.readFileSync(fpath);
-      let output;
       console.info('is this of type buffer?');
       console.info(input);
-      await ungzip(input, output)
+      const output = await ungzip(input)
       console.info('have an output of type buffer?');
       console.info(output);
       console.info('attempting to stream buffer to /tmp/gz');
