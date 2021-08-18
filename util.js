@@ -97,6 +97,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
 
     //if no files found in the zip
     if (zipEntryCount === 0){
+      console.log('zip entry count is wrong');
       fs.unlinkSync(fpath);
       if (cb) return cb(new Error("Error: the zip/gz file was empty!"));
       console.error("Error: the zip/gz file was empty!");
@@ -174,7 +175,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
               if (command.deleteOnSuccess) {
                 s3.deleteObject({Bucket: command.bucket, Key: command.file}, function(err, data) {
                   if (err) {
-                    if (cb) cb(new Error("Delete Error: "+err.message));
+                    if (cb) return cb(new Error("Delete Error: "+err.message));
                     else console.error("Delete Error: "+err.message);
                     return;
                   }
@@ -182,11 +183,11 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
                   if (command.verbose) console.log("S3 file '"+command.file+"' deleted.");
 
                   //WE GOT TO THE END
-                  cb(null, "Success!");
+                  return cb(null, "Success!");
                 });
               }else {
                 //WE GOT TO THE END
-                cb(null, "Success!");
+                return cb(null, "Success!");
               }
             }
           });
