@@ -82,11 +82,11 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
     } else {
       // using unzipper to get files
       zipEntries = [];
-      let temp;
+      //let temp;
       console.info('We are attempting to decompress GZ');
       console.info(fpath);
       
-      if ( !fs.existsSync('/tmp') ) {
+      if ( !fs.existsSync('/tmp/gz') ) {
         console.info('making directory');
         fs.mkdirSync('/tmp/gz', { recursive: true });
       }
