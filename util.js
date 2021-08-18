@@ -12,7 +12,7 @@ const unzipper = require('unzipper');
 
 const decompress = async function(/*String*/command, /*Function*/ cb) {
   try {
-
+    console.info('decompress was called');
     if (!command.bucket || !command.file) { //bucket and file are required
       if (cb) return cb(new Error("Error: missing either bucket name or full filename!"));
       console.error("Error: missing either bucket name or full filename!");
@@ -22,15 +22,19 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
     const filenamePartsArray = command.file.split(".");
     const foldername = filenamePartsArray[0];
 
+    console.info(filenamePartsArray);
+    console.info(foldername);
     /**
      * Not sure what this bit was for but keeping it as it is in the original
-     */
+     
     const d1 = await s3.getObject({ Bucket: command.bucket, Key: foldername+"/" }).promise();
     if (d1) {
       //TODO: if called via command line, ask here to overwrite the data and prompt for response
       //console.log("Folder '"+foldername+"' already exists!");
     }
+    */
 
+    console.info('getting data');
     const data = await s3.getObject({ Bucket: command.bucket,Key: command.file }).promise();
 
     if (command.verbose) console.log(`Zip/Gz file '${command.file}' found in S3 bucket!`);
