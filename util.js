@@ -84,8 +84,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       }
 
       console.info('streaming data now');
-      await ungzip(fs.createReadStream(fpath), fs.createWriteStream('/tmp/gz'));
-
+      fs.createReadStream(fpath).pipe(ungzip).pipe(fs.createWriteStream('/tmp/gz'));
       /*
       fs.createReadStream(fpath)
       .pipe(unzipper.Parse())
