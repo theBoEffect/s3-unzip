@@ -8,8 +8,10 @@ const dateTime = require("date-time");
 const md5 = require("md5");
 const mime = require('mime-types');
 
-const unzipper = require('unzipper');
-const etl = require('etl');
+//const unzipper = require('unzipper');
+//const etl = require('etl');
+
+const { ungzip } = require('node-gzip');
 
 const decompress = async function(/*String*/command, /*Function*/ cb) {
   try {
@@ -82,6 +84,9 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       }
 
       console.info('streaming data now');
+      await ungzip(fs.createReadStream(fpath), fs.createWriteStream('/tmp/gz'));
+
+      /*
       fs.createReadStream(fpath)
       .pipe(unzipper.Parse())
       .pipe(etl.map(entry => {
@@ -97,7 +102,12 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
         //const content = await entry.buffer();
         //fs.writeFileSync(`/tmp/gz/${temp.entryName}`, content);
       }));
-      console.info('success gz decompress');
+      */
+      console.info('success gz decompress - getting data');
+      fs.readdirSync(dest).forEach(file => {
+        console.info('found: '+file);
+        zipEntries.push(file);
+      });
       console.info(zipEntries);
       zipEntryCount = zipEntries.length;
       console.info(zipEntryCount);
@@ -107,7 +117,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
 
     //if no files found in the zip
     if (zipEntryCount === 0){
-      console.log('zip entry count is wrong');
+      console.log('no files found in zip file...');
       fs.unlinkSync(fpath);
       if (cb) return cb(new Error("Error: the zip/gz file was empty!"));
       console.error("Error: the zip/gz file was empty!");
