@@ -61,9 +61,12 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
     // find all files in the zip and the count of them
     let zipEntries, zipEntryCount;
     if (type === '.zip') {
+      console.log('we are using zip');
       const zip = new AdmZip(fpath);
       zipEntries = zip.getEntries();
       zipEntryCount = Object.keys(zipEntries).length;
+      console.info(zipEntries);
+      console.info(zipEntryCount);
     } else {
       // using unzipper to get files
       zipEntries = [];
@@ -90,6 +93,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       zipEntryCount = zipEntries.length;
     }
 
+    console.info('we have the entries.... attempting to write');
 
     //if no files found in the zip
     if (zipEntryCount === 0){
@@ -141,9 +145,12 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
         return cb(null, "Success!");
 
       default:
+        console.info('default behavior is to use original zip flow');
         // original s3-unzip code slightly updated, could be updated to async/await later...
         const counter = 0;
         zipEntries.forEach((zipEntry) => {
+          console.info(zipEntry);
+          console.info(zipEntry.entryName);
           s3.upload({ Bucket: command.bucket, Key: zipEntry.entryName, Body: zipEntry.getData() }, function(err, data) {
             counter++;
 
