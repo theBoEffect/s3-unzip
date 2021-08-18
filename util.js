@@ -7,11 +7,18 @@ const fs = require("fs");
 const dateTime = require("date-time");
 const md5 = require("md5");
 const mime = require('mime-types');
-
+const zlib = require('zlib'); 
 //const unzipper = require('unzipper');
 //const etl = require('etl');
 
-const { ungzip } = require('node-gzip');
+//const { ungzip } = require('node-gzip');
+
+async function gunzip(inFilename, outFilename) { 
+  var unzip = zlib.createUnzip();  
+  var input = fs.createReadStream(inFilename);  
+  var output = fs.createWriteStream(outFilename);  
+  return input.pipe(unzip).pipe(output); 
+}
 
 const decompress = async function(/*String*/command, /*Function*/ cb) {
   try {
@@ -78,11 +85,16 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       let temp;
       console.info('We are attempting to decompress GZ');
       console.info(fpath);
-      if ( !fs.existsSync('/tmp/gz') ) {
+      
+      if ( !fs.existsSync('/tmp') ) {
         console.info('making directory');
         fs.mkdirSync('/tmp/gz', { recursive: true });
       }
 
+      console.info('attempting to unzip');
+      await gunzip(fpath, '/tmp/gz');
+
+      /*
       console.info('streaming data now');
       const input = fs.readFileSync(fpath);
       console.info('is this of type buffer?');
@@ -92,6 +104,7 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       console.info(output);
       console.info('attempting to stream buffer to /tmp/gz');
       fs.createWriteStream('/tmp/gz').write(output);
+      */
       /*
       fs.createReadStream(fpath)
       .pipe(unzipper.Parse())
