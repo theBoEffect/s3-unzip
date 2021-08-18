@@ -1,8 +1,8 @@
 "use strict";
 
-var Utils = require("./util");
+const Utils = require("./util");
 
-function s3Unzip(command, cb){
+async function s3Unzip(command, cb){
   if (cb === undefined) {cb = function(err, success) {};}
   var vBucket, vFile;
   if (command.args && command.args.length >= 2) {
@@ -15,7 +15,7 @@ function s3Unzip(command, cb){
   if (command.file) {
     vFile = command.file;
   }
-  Utils.decompress({
+  await Utils.decompress({
     bucket: vBucket,
     file: vFile,
     deleteOnSuccess: command.deleteOnSuccess,
@@ -25,9 +25,9 @@ function s3Unzip(command, cb){
 
 module.exports = s3Unzip;
 
-module.exports.handler = function(event, context, callback) {
+module.exports.handler = async (event, context, callback) => {
   if (callback === undefined) {callback = function(err, success) {};}
-  Utils.decompress({
+  await Utils.decompress({
     bucket: event.Records[0].s3.bucket.name,
     file: event.Records[0].s3.object.key,
     deleteOnSuccess: true,
