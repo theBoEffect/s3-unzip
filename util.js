@@ -8,16 +8,12 @@ const dateTime = require("date-time");
 const md5 = require("md5");
 const mime = require('mime-types');
 const zlib = require('zlib'); 
-//const unzipper = require('unzipper');
-//const etl = require('etl');
 
-//const { ungzip } = require('node-gzip');
-
-async function gunzip(inFilename, outFilename) { 
-  var unzip = zlib.createUnzip();  
-  var input = fs.createReadStream(inFilename);  
-  var output = fs.createWriteStream(outFilename);  
-  return input.pipe(unzip).pipe(output); 
+function gunzip(inFilename, outFilename) { 
+  const unzip = zlib.createUnzip();  
+  const input = fs.createReadStream(inFilename);  
+  const output = fs.createWriteStream(outFilename);  
+  input.pipe(unzip).pipe(output); 
 }
 
 const decompress = async function(/*String*/command, /*Function*/ cb) {
@@ -34,15 +30,6 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
 
     console.info(filenamePartsArray);
     console.info(foldername);
-    /**
-     * Not sure what this bit was for but keeping it as it is in the original
-     
-    const d1 = await s3.getObject({ Bucket: command.bucket, Key: foldername+"/" }).promise();
-    if (d1) {
-      //TODO: if called via command line, ask here to overwrite the data and prompt for response
-      //console.log("Folder '"+foldername+"' already exists!");
-    }
-    */
 
     console.info('getting data');
     const data = await s3.getObject({ Bucket: command.bucket,Key: command.file }).promise();
@@ -79,93 +66,46 @@ const decompress = async function(/*String*/command, /*Function*/ cb) {
       const zip = new AdmZip(fpath);
       zipEntries = zip.getEntries();
       zipEntryCount = Object.keys(zipEntries).length;
+      
+      //if no files found in the zip
+      if (zipEntryCount === 0){
+        console.log('no files found in zip file...');
+        fs.unlinkSync(fpath);
+        if (cb) return cb(new Error("Error: the zip/gz file was empty!"));
+        console.error("Error: the zip/gz file was empty!");
+        return;
+      }
+
     } else {
       // using unzipper to get files
-      zipEntries = [];
-      //let temp;
       console.info('We are attempting to decompress GZ');
-      console.info(fpath);
-      
-      /*
-      if ( !fs.existsSync('/tmp/gz') ) {
-        console.info('making directory');
-        fs.mkdirSync('/tmp/gz', { recursive: true });
-      }
-      */
-      console.info('attempting to unzip');
-      await gunzip(fpath, '/tmp');
-
-      /*
-      console.info('streaming data now');
-      const input = fs.readFileSync(fpath);
-      console.info('is this of type buffer?');
-      console.info(input);
-      const output = await ungzip(input)
-      console.info('have an output of type buffer?');
-      console.info(output);
-      console.info('attempting to stream buffer to /tmp/gz');
-      fs.createWriteStream('/tmp/gz').write(output);
-      */
-      /*
-      fs.createReadStream(fpath)
-      .pipe(unzipper.Parse())
-      .pipe(etl.map(entry => {
-        console.info('inside parser for unzipper');    
-        temp = {};
-        temp.entryName = entry.path;
-        console.info('filename?');
-        console.info(temp.entryName);
-        entry.pipe(fs.createWriteStream('/tmp/gz'))
-        .on('finish', () => {
-          zipEntries.push(temp);
-        })
-        //const content = await entry.buffer();
-        //fs.writeFileSync(`/tmp/gz/${temp.entryName}`, content);
-      }));
-      */
-      console.info('success gz decompress - getting data');
-      fs.readdirSync('/tmp').forEach(file => {
-        console.info('found: '+file);
-        if(! file.includes('.gz')) zipEntries.push(file);
-      });
-      console.info(zipEntries);
-      zipEntryCount = zipEntries.length;
-      console.info(zipEntryCount);
+      console.info('This is GZ without TAR so its just a single file');
+      const ogName = (command.file.split('.gz'))[0];
+      console.info('attempting to unzip - assumes its just the filename without .gz');
+      console.info(ogName);
+      gunzip(fpath, `/tmp/${ogName}`);
     }
 
-    console.info('we have the entries.... attempting to write');
-
-    //if no files found in the zip
-    if (zipEntryCount === 0){
-      console.log('no files found in zip file...');
+    if(!fs.existsSync(`/tmp/${ogName}`)) {
       fs.unlinkSync(fpath);
-      if (cb) return cb(new Error("Error: the zip/gz file was empty!"));
-      console.error("Error: the zip/gz file was empty!");
+      if (cb) return cb(new Error(`decompression of gz failed - no file found with name ${ogName}`));
+      console.error(`decompression of gz failed - no file found with name ${ogName}`);
       return;
     }
 
+    console.info('we have the entries.... attempting to write');
     //for each file in the zip, decompress and upload it to S3; once all are uploaded, delete the tmp zip and zip on S3
+
     switch (type) {
       case '.gz':
         // adding this conditional for gz to avoid altering original code too much
-        let count = 0;
-        for(let i=0;i<zipEntryCount;i++){
-          try {
-            const data = await s3.upload({Bucket: command.bucket, Key: zipEntries[i].entryName, Body: fs.readFileSync(`/tmp/gz/${zipEntries[i].entryName}`,'utf8')}).promise();
-            if (command.verbose) console.log(`File decompressed to S3: ${data.Location}`);
-            count = count + 1;
-          } catch (err) {
-            fs.unlinkSync(fpath);
-            if (cb) return cb(new Error(`Upload Error: ${err.message}`));
-            console.error(`Upload Error: ${err.message}`);
-            return;
-          }
-        }
-
-        //if all files are not unzipped...
-        if (zipEntryCount !== count) {
-          if (cb) return cb(new Error(`Counted ${zipEntryCount} but only decompressed ${count}`));
-          console.error(`Counted ${zipEntryCount} but only decompressed ${count}`);
+        try {
+          const data = await s3.upload({Bucket: command.bucket, Key: ogName, Body: fs.readFileSync(`/tmp/${ogName}`,'utf8')}).promise();
+          if (command.verbose) console.log(`File decompressed to S3: ${data.Location}`);
+        } catch (err) {
+          fs.unlinkSync(fpath);
+          if (cb) return cb(new Error(`Upload Error: ${err.message}`));
+          console.error(`Upload Error: ${err.message}`);
           return;
         }
 

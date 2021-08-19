@@ -1,6 +1,6 @@
 # S3 Unzip2
 
-This is a fork of [S3 Unzip](https://bitbucket.org/copperhill/s3-unzip.git) by Steve Yardumian updated to support gz files with [decompress](https://github.com/kevva/decompress) with the [gz plugin](https://www.npmjs.com/package/decompress-gz)
+This is a fork of [S3 Unzip](https://bitbucket.org/copperhill/s3-unzip.git) by Steve Yardumian updated to support gz files. Note, gz not tar.gaz, so its assumed to be a single named compressed file, not a bunch of combined files in a tar that is then compressed. I may add tar support later.
 
 ## S3 Unzip ##
 
